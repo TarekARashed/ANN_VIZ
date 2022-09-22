@@ -20,7 +20,7 @@ The class uses Python 3.x and Windows 10. The following packages are required:
 	2. json
 	3. numpy
 	4. random
-	5. sys
+	5. sys.
 ### Installing
 
 ### Executing program
