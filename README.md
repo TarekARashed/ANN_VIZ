@@ -64,11 +64,11 @@ Private methods:
 	4- __Activation_Function(self, Neuron_Output, Activation_Fun, Threshold_Value) is used by each single neuron. It applies activation function and then computes activation and threshold value at each neuron.
 
 See also:
-example1.py
-example2.py
-example3.py
-example4.py
-example5.py
+example1.py,
+example2.py,
+example3.py,
+example4.py,
+and example5.py
 ## Help
 ## Authors
 Tarek Rashed, Tarekarashed@gmail.com
