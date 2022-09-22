@@ -1,6 +1,6 @@
 # ANN_VIZ
 # This class offers the following services:
-# 1- To create layers using the metod Add_Layer(No_Neurons, ActivationF, Threshold_Value="None")
+# 1- To create ANN layers using the metod Add_Layer(No_Neurons, ActivationF, Threshold_Value="None")
 # 2- To create the input layer and apply random weights using the method compile(self,File_Name=None, Inputs=None, Random_Values=None):
 # 3- To create the input, hideen, and output layers from JSON file using the method compile(self,File_Name=None, Inputs=None, Random_Values=None):
 # 4- To create JSON file ANN structure of the current ANN using the method Create_JSON_Structure(self)
