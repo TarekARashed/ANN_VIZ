@@ -20,18 +20,18 @@ The class uses Python 3.x and Windows 10. The following packages are required:
 	2. json
 	3. numpy
 	4. random
-	5. sys.
+	5. sys
 ### Installing
 
 ### Executing program
-Step 1: Create an Object from class DeepLearning(). For example, model=DeepLearning().
-Step 2: Use Add_Layer(No_Neurons, ActivationF, Threshold_Value="None") to create a layer and its associated parameters. No_Neurons is an integer value, referring to the total number of neurons at the layer n (required), ActivationF is a string, referring to a layer Activation function(recommended) and Threshold_Value is a float value, referring to a layer Threshold value (optional).
-Example: Create a feedforward neural network with 3 hidden layers and output layer 
+#Step 1: Create an Object from class DeepLearning(). For example, model=DeepLearning().
+#Step 2: Use Add_Layer(No_Neurons, ActivationF, Threshold_Value="None") to create a layer and its associated parameters. No_Neurons is an integer value, referring to the total number of neurons at the layer n (required), ActivationF is a string, referring to a layer Activation function(recommended) and Threshold_Value is a float value, referring to a layer Threshold value (optional).
+#Example: Create a feedforward neural network with 3 hidden layers and output layer 
 	1- To create the first hidden layer of 5 neurons, no threshold value, and with Relu activation function: use model.Add_Layer(5, "Relu")
 	2- To create the second hidden layer of 6 neurons, no threshold value, and with Relu activation function: use model.Add_Layer(6, "Relu")
 	3- To create the third hidden layer of 3 neurons, no threshold value, and with Tanh activation function: model.Add_Layer(3, "Tanh")
 	4- To create the output layer of 1 neurons, threshold value is 0.5, and with Sigmoid activation function: use model.Add_Layer(1, "Sigmoid", Threshold_Value=0.5)
-Step 3: Use compile(File_Name=None, Inputs=None, Random_Values=None) to setup the input layer and generate random values across all Artificial Neural Network (ANN) structure.
+#Step 3: Use compile(File_Name=None, Inputs=None, Random_Values=None) to setup the input layer and generate random values across all Artificial Neural Network (ANN) structure.
 Where, File_Name=None is a string referring to a JSON file structure (optional). It is a file name which holds an ANN structure. File_Name is optional if you do not have a JSON ANN file structure. If you have one and want to load the ANN parameters, write its name. If you do not have a JSON ANN file and you want to create one for your current ANN model use the method  Create_JSON_Structure(File_Name).
      	, Inputs=None is an integer value, referring to the number of inputs (neurons) of the input layer. It is required if you do not have a JSON file structure.
      	, Random_Values=None is a list of two values [min, max] used to generate random numbers between min and max values across all the current ANN. It is required if you use the Inputs argument.
@@ -66,3 +66,4 @@ Tarek Rashed, Tarekarashed@gmail.com
 V1.0
 ## License
 ## Acknowledgments
+
