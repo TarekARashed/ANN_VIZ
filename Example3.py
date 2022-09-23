@@ -1,4 +1,4 @@
-from DeepLearningTools import FeedForward 
+from DeepLearningTools import DeepLearning
 
 model=DeepLearning()
 model.Add_Layer(6, "Relu")
