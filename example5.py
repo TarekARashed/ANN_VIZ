@@ -1,6 +1,6 @@
 from DeepLearningTools import FeedForward 
 
-model=FeedForward()
+model=DeepLearning()
 model.Add_Layer(100, "Relu")
 model.Add_Layer(15, "Relu")
 model.Add_Layer(15, "Relu")
