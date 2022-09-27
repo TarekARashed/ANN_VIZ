@@ -1,18 +1,17 @@
-from tkinter import  Tk
-from tkinter import Canvas
 from tkinter import *
 import json
+from turtle import shape
 import numpy as np
 import random as rn
 import sys
 
 # This class offers the following services:
-# 1- To create layers using the metod Add_Layer(No_Neurons, ActivationF, Threshold_Value="None")
+# 1- To create the ANN layers using the metod Add_Layer(No_Neurons, ActivationF, Threshold_Value="None")
 # 2- To create the input layer and apply random weights using the method compile(self,File_Name=None, Inputs=None, Random_Values=None):
 # 3- To create the input, hideen, and output layers from JSON file using the method compile(self,File_Name=None, Inputs=None, Random_Values=None):
 # 4- To create JSON file ANN structure of the current ANN using the method Create_JSON_Structure(self)
-# 5- To Visulize any Artificial Neural Network (ANN) sTructure using the metod ANNToolBox(Action="draw", Digram_Title="ANN Visulization")
-# 6- To visulize and predict outputs in outputs layer using the method ANNToolBox(Action="predict", Digram_Title="ANN Visulization")
+# 5- To Visulize any Artificial Neural Network (ANN) structure using the metod ANNToolBox(Action="draw", Digram_Title="ANN Visulization")
+# 6- To visulize and predict outputs at the output layer using the method ANNToolBox(Action="predict", Digram_Title="ANN Visulization")
                                         # Note: This class is not used to train ANN  
 # see example1.py
 # see example2.py
@@ -20,7 +19,7 @@ import sys
 # see example4.py
 # see example5.py
 
-class FeedForward():
+class DeepLearning():
     
     def __init__(self):
         self.Layers={}
@@ -28,6 +27,8 @@ class FeedForward():
         self.No_Neurons=0
         self.Layer_Number=0
         self.Neurons=[]
+        self.Neurons_intercept=[0]
+        self.List_Neurons_intercept=[]
         self.Threshold_Value="None"
         self.Neuron_Weights=[0]
         self.Neuron_Coordinates=[]
@@ -66,11 +67,12 @@ class FeedForward():
                 sys.exit()
 
         for i in range(self.No_Neurons):
-           self.Neurons.append(self.Neuron_Weights)
-        self.Layers[self.Layer_Number]=self.ActivationF,  self.Threshold_Value, self.Neurons
+            self.Neurons.append(self.Neuron_Weights)
+            self.List_Neurons_intercept.append(self.Neurons_intercept)
+        self.Layers[self.Layer_Number]=self.ActivationF,  self.Threshold_Value, self.Neurons,  self.List_Neurons_intercept
         self.Neurons=[]
-    
-    def ANNToolBox(self, Action="Draw", Sample_Data=[], Digram_Title="ANN Visulization"):
+        self.List_Neurons_intercept=[]
+    def ANNToolBox(self, Action="Draw", Sample_Data=[], Digram_Title="ANN Visualization"):
         if Action.lower() != "draw" and Action.lower() != "predict":
             print (f" Error")
             sys.exit()
@@ -84,7 +86,7 @@ class FeedForward():
                     sys.exit()
                 else:
                     self.canvas, self.window=self.__Window_Para()
-                    self.__Draw(Digram_Title)
+                    self.__Draw(Digram_Title + " and Predication")
                     self.__predict(Sample_Data)
         self.window.mainloop() 
 
@@ -104,7 +106,6 @@ class FeedForward():
             xy.append(x1)
             xy.append(y1)
             self.Neuron_Coordinates.append(xy)
-
 
     def __Add_XY_Dashed_Line_Coordinates(self,x1,y1, y2):
         for i in range (2):
@@ -165,7 +166,7 @@ class FeedForward():
     def __Draw_ANN_Mesh(self, n):
         for Layer_N_Mins1 in range(0,n-1):
             Layer_N_Plus1=Layer_N_Mins1+1
-            print (self.Neuron_List_Of_Coordinates[Layer_N_Mins1])
+            #print (self.Neuron_List_Of_Coordinates[Layer_N_Mins1])
             for i in range(0, len(self.Neuron_List_Of_Coordinates[Layer_N_Mins1])):
                 Radious, Space_Padding, border, color=self.__Set_Para(Layer_N_Mins1,n, self.Input_Radious, self.Neuron_Radious)
                 x1=self.Neuron_List_Of_Coordinates[Layer_N_Mins1][i][0]+Radious
@@ -177,15 +178,54 @@ class FeedForward():
                     coordinates = x1,y1,x2,y2
                     self.canvas.create_line(coordinates, dash=(8,2))
     
-    def _Draw_Arrows_of_Output_Layer(self, n):
-        Radious, Space_Padding, border, color=self.__Set_Para(n-1,n, self.Input_Radious, self.Neuron_Radious)
-        for Neurons_In_Output_Layer in range(len(self.Neuron_List_Of_Coordinates[n-1])):
-                x1=self.Neuron_List_Of_Coordinates[n-1][Neurons_In_Output_Layer][0]+Radious
-                y1=self.Neuron_List_Of_Coordinates[n-1][Neurons_In_Output_Layer][1]+(Radious/2)
-                coordinates=x1,y1,x1+self.Arrow_Lenth,y1
-                self.canvas.create_line(coordinates, fill="blue", arrow="last", width=10, dash=(4,2))
-          
-    def __Draw(self, Digram_Title="ANN Visulization"): 
+    def __Draw_Arrows_And_Data_Input_Output_Layer(self, Input, Output, n, case):
+        last_key = list(self.Neuron_List_Of_Coordinates)[-1]
+        Input = np.reshape(Input, (1, len(Input)))
+        print (len(self.Neuron_List_Of_Coordinates), " ", last_key)
+        for Layer in (0, last_key):
+            Radious, Space_Padding, border, color=self.__Set_Para(Layer,n, self.Input_Radious, self.Neuron_Radious)
+            Number_Of_Neurons_In_List=len(self.Neuron_List_Of_Coordinates[Layer])
+            if Layer==0:
+                Neurons_In_ANN_Layer=len(self.Layers[Layer][2])
+                X1_Location=-Radious
+                Data=Input
+            else:
+                if Layer==last_key:
+                    Neurons_In_ANN_Layer=len(self.Layers[len(self.Layers)-1][2])
+                    X1_Location=+Radious
+                    Data=Output
+                else:
+                    print(f'Error')
+                    sys.exit()
+            print (type(Data))
+            if Number_Of_Neurons_In_List == Neurons_In_ANN_Layer :
+                for Neurons_In_Input_Output_Layer in range (0, Number_Of_Neurons_In_List):
+                    x1=self.Neuron_List_Of_Coordinates[Layer][Neurons_In_Input_Output_Layer][0]+X1_Location
+                    y1=self.Neuron_List_Of_Coordinates[Layer][Neurons_In_Input_Output_Layer][1]+(Radious/2)
+                    coordinates=x1,y1,x1+self.Arrow_Lenth,y1
+                    self.canvas.create_line(coordinates, fill="blue", arrow="last", width=10, dash=(4,2))
+                    if case ==1:
+                        self.canvas.create_text(x1+X1_Location, y1, text=str(Data[0][Neurons_In_Input_Output_Layer]), fill="black", font=('Helvetica 15 bold'))
+                          
+            else:
+                if  Number_Of_Neurons_In_List <= Neurons_In_ANN_Layer :
+                    for Neurons_In_Input_Output_Layer in (0, 1):
+                        x1=self.Neuron_List_Of_Coordinates[Layer][Neurons_In_Input_Output_Layer][0]+X1_Location
+                        y1=self.Neuron_List_Of_Coordinates[Layer][Neurons_In_Input_Output_Layer][1]+(Radious/2)
+                        coordinates=x1,y1,x1+self.Arrow_Lenth,y1
+                        self.canvas.create_line(coordinates, fill="blue", arrow="last", width=10, dash=(4,2))
+                        if case ==1:
+                            if Neurons_In_Input_Output_Layer == 0:
+                                Colum=0
+                            else:
+                                Colum=Data.shape[1]-1
+                            self.canvas.create_text(x1+X1_Location, y1, text=str(Data[0][Colum]), fill="black", font=('Helvetica 15 bold'))
+                else:
+                    print(f'Error')
+                    sys.exit()
+
+
+    def __Draw(self, Digram_Title): 
         self.window.title(Digram_Title)
         Space_Padding=None
         W_Padding=140
@@ -193,8 +233,6 @@ class FeedForward():
         flag=1
         n=len(self.Layers)
         W_Jump=200
-
-        The_Last_Neuron=self.height-self.TBReserved_Space
         HLayer_Space_Needed=(self.Neuron_Radious*2+W_Padding)*len(self.Layers)
         Fit=True # to add mesh to ANN
         if HLayer_Space_Needed < self.width:
@@ -211,7 +249,6 @@ class FeedForward():
                     y2=y1+Radious   
                     self.__Draw_Box(x1-10,y1-10,x2+10,y1+VLayer_Space_Needed-10, "#fb0","#fb0")
                     self.__Draw_NN_Digram(x1,y1,x2,y2, Radious, Space_Padding,border, color, i)
-                    
                 else:
                     Fit=Fit and False
                     if i==0:
@@ -220,13 +257,10 @@ class FeedForward():
                         y1=self.TBReserved_Space/2
                     y2=y1+Radious
                     self.__Draw_Dashed_Lines(x1, y1, x2, y2, Radious, Space_Padding,i, border, color, 5, 1)
-                if i==n-1:
-                    self._Draw_Arrows_of_Output_Layer(n)
                 x1=x1+Radious+W_Padding
                 x2=x1+Radious 
             if Fit == True:
                 self.__Draw_ANN_Mesh(n)
-            
         else:
             Fit=Fit and False
             x1=self.LRReserved_Space
@@ -242,7 +276,7 @@ class FeedForward():
                         x1=self.width/2+W_Jump
                         x2=x1+Radious
                         flag=0
-                if VLayer_Space_Needed < self.height:
+                if VLayer_Space_Needed < self.height: #note
                     Satrt_Drawing = int((self.height-VLayer_Space_Needed)/2)
                     y1=0
                     y1=y1+Satrt_Drawing
@@ -256,11 +290,10 @@ class FeedForward():
                         y1=self.TBReserved_Space/2
                     y2=y1+Radious
                     self.__Draw_Dashed_Lines(x1, y1, x2, y2, Radious, Space_Padding,i, border, color, 2, 1)
-                if i==n-1:
-                    self._Draw_Arrows_of_Output_Layer(n)
+                
                 x1=x1+Radious+W_Padding
                 x2=x1+Radious
-    
+        self.__Draw_Arrows_And_Data_Input_Output_Layer([], [], n, 0)
     def Create_JSON_Structure(self, File_Name):
         JSON_String=json.dumps(self.Layers, indent=4)
         jsonFile = open(File_Name, "w")
@@ -268,7 +301,8 @@ class FeedForward():
         jsonFile.close()
 
     def compile(self,File_Name=None, Inputs=None, Random_Values=None):
-        Case=0
+        Min_intercept=-1
+        Max_intercept=1
         if (File_Name) and not (Inputs or Random_Values):
             fileObject = open(File_Name, "r")
             jsonContent = fileObject.read()
@@ -284,87 +318,87 @@ class FeedForward():
                 Min=Random_Values[0]
                 Max=Random_Values[1]
                 self.__Weights_Settings(Min, Max)
+                self.__intercept_Settings(Min_intercept, Max_intercept)
             else:
-                print (f" Error")           
+                print (f" Error")
+
+    def __intercept_Settings(self, Min_intercept, Max_intercept ):
+        for Current_Layer in range(1, len(self.Layers)):
+            for N1 in range (len(self.Layers[Current_Layer][2])):
+                self.Layers[Current_Layer][3][N1]=rn.choice([Min_intercept, Max_intercept])
+
     def __Weights_Settings(self, Min, Max):
-        for Layer in range(1, len(self.Layers)):
+        for Current_Layer in range(0, len(self.Layers)-1):
             Weights = []
-            Neurons_Of_Current_Layer=len(self.Layers[Layer][2])
-            Neurons_Of_Layer_Minus_1=len(self.Layers[Layer-1][2])
-            for N1 in range (Neurons_Of_Current_Layer):
-                for  N2 in range (Neurons_Of_Layer_Minus_1):    
+            Neurons_Of_The_Current_Layer=len(self.Layers[Current_Layer][2])
+            Next_Layer=Current_Layer+1
+            Neurons_Of_The_Next_Layer=len(self.Layers[Next_Layer][2])
+            for N1 in range (Neurons_Of_The_Current_Layer):
+                for  N2 in range (Neurons_Of_The_Next_Layer):    
                     Weights.append(rn.uniform(Min, Max))
-                Weights.append(rn.choice([-1, 1]))
-                self.Layers[Layer][2][N1]=Weights
+                self.Layers[Current_Layer][2][N1]=Weights
                 Weights = []
         
     def __predict(self, Sample_Data):
         Inputs=np.array(Sample_Data, dtype=np.float64)
         Inputs = np.reshape(Inputs, (1, len(Sample_Data)))
+        np.array((), dtype=np.float64)
         for Layer in range(1, len(self.Layers)):
             w=[]
             b=[]
-            for N1 in range (len(self.Layers[Layer][2])): 
-                w.append(self.Layers[Layer][2][N1][0:len(self.Layers[Layer][2][N1])-1])
-                b.append(self.Layers[Layer][2][N1][len(self.Layers[Layer][2][N1])-1:len(self.Layers[Layer][2][N1])])
+            Pre_Layer=Layer-1
+            
+            for N1 in range (len(self.Layers[Pre_Layer][2])): 
+                w.append(self.Layers[Pre_Layer][2][N1])
+            for N1 in range (len(self.Layers[Layer][3])):  
+                b.append(self.Layers[Layer][3][N1])
+
             w=np.array(w, dtype=np.float64)
-            w=np.transpose(w)
             b=np.array(b, dtype=np.float64)
             b = np.reshape(b, (1, len(b)))
+            print (w)
             Sum_of_Product=np.dot(Inputs, w)+b
             Sum_of_Product.astype(np.int64)
             Inputs=self.__Activation_Function(Sum_of_Product, self.Layers[Layer][0], self.Layers[Layer][1])
-        self.__Print_Text(Inputs)
+        self.__Draw_Arrows_And_Data_Input_Output_Layer(Sample_Data, Inputs, len(self.Layers), 1)
 
-    def __Print_Text(self, Data):
-        m,n=Data.shape
-        last_key = list(self.Neuron_List_Of_Coordinates)[-1]
-        Radious, Space_Padding, border, color=self.__Set_Para(len(self.Layers)-1,len(self.Layers), self.Input_Radious, self.Neuron_Radious)
-        if len(self.Layers[len(self.Layers)-1][2]) == len(self.Neuron_List_Of_Coordinates[last_key]):
-            Neurons=list(range (n))
-        else:
-            Neurons=[0,n-1]
-        
-        for i in range (m):
-            for j in Neurons:
-                for Neurons_In_Output_Layer in range(len(self.Neuron_List_Of_Coordinates[last_key])):
-                    x1=self.Neuron_List_Of_Coordinates[last_key][Neurons_In_Output_Layer][0]+Radious+(self.Arrow_Lenth*2)
-                    y1=self.Neuron_List_Of_Coordinates[last_key][Neurons_In_Output_Layer][1]+(Radious/2)
-                    self.canvas.create_text(x1, y1, text=str(Data[i][j]), fill="black", font=('Helvetica 15 bold'))
     
     def __Activation_Function(self, Neuron_Output, Activation_Fun, Threshold_Value):
         m,n = Neuron_Output.shape
-        for i in range(m):
-            for j in range(n):
-                if Activation_Fun=="Sigmoid":
-                    Neuron_Output[i][j]=1/(1+np.exp(-Neuron_Output[i][j]))
-                elif Activation_Fun=="Tanh":
-                    Neuron_Output[i][j]=(np.exp(-Neuron_Output[i][j]) - np.exp(-Neuron_Output[i][j]))/(np.exp(-Neuron_Output[i][j]) + np.exp(-Neuron_Output[i][j]))
-                elif Activation_Fun=="Softmax":
-                    pass
-                elif Activation_Fun=="Softsign":
-                    pass
-                elif Activation_Fun=="ReLU":
-                    Neuron_Output[i][j] = max(0.0, Neuron_Output[i][j])
-                elif Activation_Fun=="Leaky ReLU":
-                    Neuron_Output[i][j] = max(0.1*Neuron_Output[i][j], Neuron_Output[i][j])
-                elif Activation_Fun=="ELUs":
-                    pass
-                elif Activation_Fun=="Linear":
-                    pass
-                elif Activation_Fun=="Binary Step":
-                    if Neuron_Output[i][j]<0:
-                        Neuron_Output[i][j]=0
-                    else:
-                        Neuron_Output[i][j]=1
+        if Activation_Fun=="Softmax":
+            Total_Outputs=0.0
+            for Number_of_Outputs in range(0, n):
+                print (np.exp(Neuron_Output[0][Number_of_Outputs]))
+                Total_Outputs = Total_Outputs+np.exp(Neuron_Output[0][Number_of_Outputs])
+        for j in range(n):
+            if Activation_Fun=="Sigmoid":
+                Neuron_Output[0][j]=1/(1+np.exp(-Neuron_Output[0][j]))
+            elif Activation_Fun=="Tanh":
+                Neuron_Output[0][j]=(np.exp(-Neuron_Output[0][j]) - np.exp(-Neuron_Output[0][j]))/(np.exp(-Neuron_Output[0][j]) + np.exp(-Neuron_Output[0][j]))
+            elif Activation_Fun=="Softmax":
+                Neuron_Output[0][j]= np.exp(Neuron_Output[0][j])/Total_Outputs
+            elif Activation_Fun=="Softsign":
+                pass
+            elif Activation_Fun=="ReLU":
+                Neuron_Output[0][j] = max(0.0, Neuron_Output[0][j])
+            elif Activation_Fun=="Leaky ReLU":
+                Neuron_Output[0][j] = max(0.1*Neuron_Output[0][j], Neuron_Output[0][j])
+            elif Activation_Fun=="ELUs":
+                pass
+            elif Activation_Fun=="Linear":
+                pass
+            elif Activation_Fun=="Binary Step":
+                if Neuron_Output[0][j]<0:
+                    Neuron_Output[0][j]=0
                 else:
-                    print (f" Error in formatting Activation Fun")
-                    sys.exit()
-                if Threshold_Value !="None":
-                    if Neuron_Output[i][j]>=Threshold_Value:
-                        Neuron_Output[i][j]=1
-                    else:
-                        Neuron_Output[i][j]=0
+                    Neuron_Output[0][j]=1
+            else:
+                print (f" Error in formatting Activation Fun")
+                sys.exit()
+            if Threshold_Value !="None":
+                if Neuron_Output[0][j]>=Threshold_Value:
+                    Neuron_Output[0][j]=1
+                else:
+                    Neuron_Output[0][j]=0
         return (Neuron_Output)
             
-
