@@ -166,7 +166,6 @@ class DeepLearning():
     def __Draw_ANN_Mesh(self, n):
         for Layer_N_Mins1 in range(0,n-1):
             Layer_N_Plus1=Layer_N_Mins1+1
-            #print (self.Neuron_List_Of_Coordinates[Layer_N_Mins1])
             for i in range(0, len(self.Neuron_List_Of_Coordinates[Layer_N_Mins1])):
                 Radious, Space_Padding, border, color=self.__Set_Para(Layer_N_Mins1,n, self.Input_Radious, self.Neuron_Radious)
                 x1=self.Neuron_List_Of_Coordinates[Layer_N_Mins1][i][0]+Radious
@@ -181,7 +180,6 @@ class DeepLearning():
     def __Draw_Arrows_And_Data_Input_Output_Layer(self, Input, Output, n, case):
         last_key = list(self.Neuron_List_Of_Coordinates)[-1]
         Input = np.reshape(Input, (1, len(Input)))
-        print (len(self.Neuron_List_Of_Coordinates), " ", last_key)
         for Layer in (0, last_key):
             Radious, Space_Padding, border, color=self.__Set_Para(Layer,n, self.Input_Radious, self.Neuron_Radious)
             Number_Of_Neurons_In_List=len(self.Neuron_List_Of_Coordinates[Layer])
@@ -197,7 +195,6 @@ class DeepLearning():
                 else:
                     print(f'Error')
                     sys.exit()
-            print (type(Data))
             if Number_Of_Neurons_In_List == Neurons_In_ANN_Layer :
                 for Neurons_In_Input_Output_Layer in range (0, Number_Of_Neurons_In_List):
                     x1=self.Neuron_List_Of_Coordinates[Layer][Neurons_In_Input_Output_Layer][0]+X1_Location
@@ -301,8 +298,6 @@ class DeepLearning():
         jsonFile.close()
 
     def compile(self,File_Name=None, Inputs=None, Random_Values=None):
-        Min_intercept=-1
-        Max_intercept=1
         if (File_Name) and not (Inputs or Random_Values):
             fileObject = open(File_Name, "r")
             jsonContent = fileObject.read()
@@ -310,24 +305,34 @@ class DeepLearning():
             self.Layers = {int(key):value for key, value in self.Layers.items()}
         else:
             if not (File_Name) and  (Inputs and Random_Values):
-                self.Inputs=Inputs
-                for i in range(self.Inputs):
-                    self.Neurons.append(self.Neuron_Weights)
-                self.Layers[0]="None", "None", self.Neurons
-                self.Neurons=[]
-                Min=Random_Values[0]
-                Max=Random_Values[1]
-                self.__Weights_Settings(Min, Max)
-                self.__intercept_Settings(Min_intercept, Max_intercept)
+                if (len(Random_Values) == 2):
+                    if len(Random_Values[0]) !=0 and len(Random_Values[1]) !=0 : 
+                        self.Inputs=Inputs
+                        for i in range(self.Inputs):
+                            self.Neurons.append(self.Neuron_Weights)
+                        self.Layers[0]="None", "None", self.Neurons
+                        self.Neurons=[]
+                        Min_W=Random_Values[0][0]
+                        Max_W=Random_Values[0][1]
+                        Min_intercept_W=Random_Values[1][0]
+                        Max_intercept_W=Random_Values[1][1]
+                        self.__Weights_Settings(Min_W, Max_W)
+                        self.__intercept_Settings(Min_intercept_W, Max_intercept_W)
+                    else:
+                        print (f" Error in the argument Random Values ")
+                        sys.exit()
+                else:
+                    print (f" Error in the argument Random Values ")
+                    sys.exit()
             else:
                 print (f" Error")
 
-    def __intercept_Settings(self, Min_intercept, Max_intercept ):
+    def __intercept_Settings(self, Min_intercept_W, Max_intercept_W ):
         for Current_Layer in range(1, len(self.Layers)):
             for N1 in range (len(self.Layers[Current_Layer][2])):
-                self.Layers[Current_Layer][3][N1]=rn.choice([Min_intercept, Max_intercept])
+                self.Layers[Current_Layer][3][N1]=rn.uniform(Min_intercept_W, Max_intercept_W)
 
-    def __Weights_Settings(self, Min, Max):
+    def __Weights_Settings(self, Min_W, Max_W):
         for Current_Layer in range(0, len(self.Layers)-1):
             Weights = []
             Neurons_Of_The_Current_Layer=len(self.Layers[Current_Layer][2])
@@ -335,7 +340,7 @@ class DeepLearning():
             Neurons_Of_The_Next_Layer=len(self.Layers[Next_Layer][2])
             for N1 in range (Neurons_Of_The_Current_Layer):
                 for  N2 in range (Neurons_Of_The_Next_Layer):    
-                    Weights.append(rn.uniform(Min, Max))
+                    Weights.append(rn.uniform(Min_W, Max_W))
                 self.Layers[Current_Layer][2][N1]=Weights
                 Weights = []
         
@@ -356,7 +361,6 @@ class DeepLearning():
             w=np.array(w, dtype=np.float64)
             b=np.array(b, dtype=np.float64)
             b = np.reshape(b, (1, len(b)))
-            print (w)
             Sum_of_Product=np.dot(Inputs, w)+b
             Sum_of_Product.astype(np.int64)
             Inputs=self.__Activation_Function(Sum_of_Product, self.Layers[Layer][0], self.Layers[Layer][1])
@@ -365,18 +369,14 @@ class DeepLearning():
     
     def __Activation_Function(self, Neuron_Output, Activation_Fun, Threshold_Value):
         m,n = Neuron_Output.shape
-        if Activation_Fun=="Softmax":
-            Total_Outputs=0.0
-            for Number_of_Outputs in range(0, n):
-                print (np.exp(Neuron_Output[0][Number_of_Outputs]))
-                Total_Outputs = Total_Outputs+np.exp(Neuron_Output[0][Number_of_Outputs])
         for j in range(n):
             if Activation_Fun=="Sigmoid":
                 Neuron_Output[0][j]=1/(1+np.exp(-Neuron_Output[0][j]))
             elif Activation_Fun=="Tanh":
                 Neuron_Output[0][j]=(np.exp(-Neuron_Output[0][j]) - np.exp(-Neuron_Output[0][j]))/(np.exp(-Neuron_Output[0][j]) + np.exp(-Neuron_Output[0][j]))
             elif Activation_Fun=="Softmax":
-                Neuron_Output[0][j]= np.exp(Neuron_Output[0][j])/Total_Outputs
+                Neuron_Output=self.__SoftMax_Act(Neuron_Output)
+                break
             elif Activation_Fun=="Softsign":
                 pass
             elif Activation_Fun=="ReLU":
@@ -401,4 +401,9 @@ class DeepLearning():
                 else:
                     Neuron_Output[0][j]=0
         return (Neuron_Output)
-            
+    
+    def __SoftMax_Act(self, Z):
+        Exp_z = np.exp(Z)
+        Sum = Exp_z.sum()
+        Softmax_z = np.round(Exp_z/Sum,3)
+        return Softmax_z
