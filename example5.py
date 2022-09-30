@@ -1,12 +1,9 @@
-from DeepLearningTools import DeepLearning
+from DeepLearningTools import DeepLearning 
 
 model=DeepLearning()
-model.Add_Layer(100, "Relu")
-model.Add_Layer(15, "Relu")
-model.Add_Layer(15, "Relu")
-model.Add_Layer(15, "Relu")
-model.Add_Layer(15, "Relu")
-model.Add_Layer(5, "Sigmoid", Threshold_Value=0.5)
-Sample_Data=[2,1,1,8,7,9,9,9,9,9,9]
-model.compile(Inputs=len(Sample_Data), Random_Values=[0,1])
-model.ANNToolBox(Action="predict", Sample_Data=Sample_Data, Digram_Title="ANN Visulization and Prediction")
+model.Add_Layer(5, "relu")
+model.Add_Layer(6, "relu")
+model.Add_Layer(5, "softmax")
+Sample_Data=[3,2, 5]
+model.compile(Inputs=len(Sample_Data), Random_Values=[[-1,1],[-5, 5]])
+model.ANNToolBox(Action="predict", Sample_Data=Sample_Data, Digram_Title="ANN Visulization")
